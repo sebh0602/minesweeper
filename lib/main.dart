@@ -38,6 +38,7 @@ class MyApp extends StatelessWidget {
 											var boxSize = 50.0;
 											var boxMargin = 5.0;
 											var boundaryMargin = 20*2;
+											var borderRadius = 5.0;
 											var gridWidth = mineSweeper.cols*(boxSize + 2*boxMargin);
 											var gridHeight = mineSweeper.rows*(boxSize + 2*boxMargin);
 											num containerWidth;
@@ -73,16 +74,22 @@ class MyApp extends StatelessWidget {
 															crossAxisAlignment: CrossAxisAlignment.center,
 															mainAxisSize: MainAxisSize.min,
 															children: <Widget>[for (int y = 0; y < mineSweeper.rows; y++) Container(
-																decoration: BoxDecoration(
-																	borderRadius: BorderRadius.circular(5),
-																	color:Colors.blue,
-																),
-																width: boxSize,
-																height: boxSize,
 																margin: EdgeInsets.all(boxMargin),
-																child: Center(
-																	child:Text('$x, $y')
-																),
+																child:Ink(
+																	decoration: BoxDecoration(
+																		borderRadius: BorderRadius.circular(borderRadius),
+																		color:Colors.blue,
+																	),
+																	width: boxSize,
+																	height: boxSize,
+																	child: InkWell(
+																		onTap:(){print('$x, $y');},
+																		borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
+																		child:Center(
+																			child:Text('$x, $y')
+																		),
+																	)
+																)
 															)],
 														)],
 													)
