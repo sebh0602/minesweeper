@@ -13,10 +13,14 @@ class MyApp extends StatelessWidget {
 		return ChangeNotifierProvider(
 			create: (context) => MineSweeper(),
 			child:MaterialApp(
-				title: 'Flutter Demo',
+				title: 'minesweeper',
 				theme: ThemeData(
-					primarySwatch: Colors.indigo,
-					brightness: Brightness.dark
+					colorScheme: ColorScheme.dark(
+						primary:Colors.blueGrey[400],
+						primaryVariant: Colors.blueGrey[700],
+						secondary: Colors.blue[300],
+						secondaryVariant: Colors.blue[700]
+					)
 				),
 				home: Scaffold(
 					body:Center(
@@ -24,7 +28,7 @@ class MyApp extends StatelessWidget {
 							builder:(context,constraints){
 								return InteractiveViewer(
 									constrained: false,
-									//boundaryMargin: EdgeInsets.all(150),
+									boundaryMargin: EdgeInsets.all(150),
 									minScale: 0.1,
 									maxScale: 2,
 									clipBehavior: Clip.none,
@@ -61,32 +65,59 @@ class MyApp extends StatelessWidget {
 													containerHeight = viewportSize.height;
 												}
 											}
+
+											Widget fieldChild(int x, int y){
+												/*if (mineSweeper.getField(x,y)['bomb']){ //TEMP: remove later
+													return Icon(Icons.dangerous);
+												}*/
+
+												if (mineSweeper.getField(x,y)['flagged']){
+													return Icon(Icons.flag);
+												} else if (mineSweeper.getField(x,y)['covered'] || mineSweeper.getBombCount(x,y) == 0){
+													return null;
+												} else if (mineSweeper.getField(x,y)['bomb']){
+													return Icon(Icons.dangerous);
+												} else {
+													return Text('${mineSweeper.getBombCount(x, y)}');
+												}
+											}
+
 											return Container(
 												width:containerWidth,
 												height:containerHeight,
 												child:Center(
+													
 													child:Row(
 														mainAxisAlignment: MainAxisAlignment.center,
 														crossAxisAlignment: CrossAxisAlignment.center,
 														mainAxisSize: MainAxisSize.min,
+														
 														children: <Widget>[for (int x = 0; x < mineSweeper.cols; x++) Column(
 															mainAxisAlignment: MainAxisAlignment.center,
 															crossAxisAlignment: CrossAxisAlignment.center,
 															mainAxisSize: MainAxisSize.min,
+															
 															children: <Widget>[for (int y = 0; y < mineSweeper.rows; y++) Container(
 																margin: EdgeInsets.all(boxMargin),
+																
 																child:Ink(
 																	decoration: BoxDecoration(
 																		borderRadius: BorderRadius.circular(borderRadius),
-																		color:Colors.blue,
+																		color:(mineSweeper.getField(x,y)['covered']) ? (Theme.of(context).colorScheme.secondaryVariant) : (Theme.of(context).colorScheme.secondary),
 																	),
 																	width: boxSize,
 																	height: boxSize,
+																	
 																	child: InkWell(
-																		onTap:(){print('$x, $y');},
+																		onDoubleTap: (){
+																			mineSweeper.unCover(x, y);
+																		},
+																		onLongPress: (){
+																			mineSweeper.toggleFlag(x, y);
+																		},
 																		borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
 																		child:Center(
-																			child:Text('$x, $y')
+																			child:fieldChild(x, y)
 																		),
 																	)
 																)
