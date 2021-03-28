@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:vibration/vibration.dart';
+import 'package:minesweeper/menus.dart';
 
 class MineSweeper extends ChangeNotifier{
 	final _random = Random();
 	
-	int _cols = 20;
-	int _rows = 15;
+	int _cols = 9;
+	int _rows = 20;
 	double _explosiveChance = 0.2;
 
 	int get cols => _cols;
 	int get rows => _rows;
+	String get gameMode => _gameMode;
 
 	List<List<Map<String,bool>>> _board;
 	var _boardPopulated = false;
 	var _gameMode = 'init'; //playing, won, lost
+
+	void startGame(){
+		_gameMode = 'init';
+		_createBoard();
+		notifyListeners();
+	}
 
 	void _createBoard(){
 		_board = [for (var x = 0; x < _cols; x++) 
@@ -41,13 +50,23 @@ class MineSweeper extends ChangeNotifier{
 				_createBoard();
 			}
 		}
+	}
 
+	bool _checkWin(){
+		for (var x = 0; x < _cols; x++){
+			for (var y = 0; y < _rows; y++){
+				if (!_board[x][y]['bomb'] && _board[x][y]['covered']){
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	void _quietlyUnCover(x,y){
 		if (_board[x][y]['covered'] && !_board[x][y]['flagged']){
 			_board[x][y]['covered'] = false;
-			if (getBombCount(x, y) == 0){
+			if (getBombCount(x, y) == 0 && !_board[x][y]['bomb']){
 				var coords = [
 					[x-1,y-1],
 					[x,y-1],
@@ -69,18 +88,36 @@ class MineSweeper extends ChangeNotifier{
 		}
 	}
 
-	void unCover(int x,int y){
+	void unCover(int x,int y, BuildContext context){
 		if (_gameMode == 'init'){
 			_boardExistsCheck(x,y);
 			_gameMode = 'playing';
 		} else{
 			_boardExistsCheck();
 		}
-		
+
+		if (_board[x][y]['flagged']){
+			return null;
+		}
+
+		_quietlyUnCover(x, y); //to prevent mass notification of listeners
+
 		if (_board[x][y]['bomb']){
 			_gameMode = 'lost';
-		} else {
-			_quietlyUnCover(x, y); //to prevent mass notification of listeners
+			showDialog(
+				context: context, 
+				builder: (context){
+					return LostDialog(this);
+				}
+			);
+		} else if (_checkWin()){
+			_gameMode = 'won';
+			showDialog(
+				context: context, 
+				builder: (context){
+					return WonDialog(this);
+				}
+			);
 		}
 
 		notifyListeners();
@@ -95,6 +132,7 @@ class MineSweeper extends ChangeNotifier{
 		if (_board[x][y]['covered']){
 			_board[x][y]['flagged'] = !_board[x][y]['flagged'];
 			notifyListeners();
+			Vibration.vibrate(duration: 50);
 		}
 	}
 

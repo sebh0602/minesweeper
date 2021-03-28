@@ -7,7 +7,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-	// This widget is the root of your application.
 	@override
 	Widget build(BuildContext context) {
 		return ChangeNotifierProvider(
@@ -18,7 +17,10 @@ class MyApp extends StatelessWidget {
 					colorScheme: ColorScheme.dark(
 						primary:Colors.blueGrey[400],
 						primaryVariant: Colors.blueGrey[700],
-						secondary: Colors.blue[300],
+						
+						secondary: Colors.blue[50],
+						onSecondary: Colors.black,
+						
 						secondaryVariant: Colors.blue[700]
 					)
 				),
@@ -71,14 +73,67 @@ class MyApp extends StatelessWidget {
 													return Icon(Icons.dangerous);
 												}*/
 
-												if (mineSweeper.getField(x,y)['flagged']){
-													return Icon(Icons.flag);
-												} else if (mineSweeper.getField(x,y)['covered'] || mineSweeper.getBombCount(x,y) == 0){
-													return null;
-												} else if (mineSweeper.getField(x,y)['bomb']){
-													return Icon(Icons.dangerous);
-												} else {
-													return Text('${mineSweeper.getBombCount(x, y)}');
+												var playing = mineSweeper.gameMode == 'playing' || mineSweeper.gameMode == 'init';
+												var covered = mineSweeper.getField(x,y)['covered'];
+												var flagged = mineSweeper.getField(x,y)['flagged'];
+												var bomb = mineSweeper.getField(x,y)['bomb'];
+												var bombsNearby = mineSweeper.getBombCount(x,y) != 0;
+
+												if (covered){
+													if (flagged){
+														return Icon(Icons.flag);
+													} else {
+														if (playing){
+															return null;
+														} else{
+															if (bomb){
+																return Icon(Icons.coronavirus);
+															} else{
+																return null;
+															}
+														}
+													}
+												} else{
+													if (bomb){
+														return Icon(Icons.coronavirus);
+													} else{
+														if (bombsNearby){
+															return Text('${mineSweeper.getBombCount(x, y)}',
+																style:TextStyle(color:Theme.of(context).colorScheme.onSecondary),
+															);
+														} else{
+															return null;
+														}
+													}
+												}
+											}
+
+											Color fieldColor(int x, int y){
+												var playing = mineSweeper.gameMode == 'playing' || mineSweeper.gameMode == 'init';
+												var covered = mineSweeper.getField(x,y)['covered'];
+												var bomb = mineSweeper.getField(x,y)['bomb'];
+												var colorScheme = Theme.of(context).colorScheme;
+
+												if (playing){
+													if (covered){
+														return colorScheme.secondaryVariant;
+													} else{
+														return colorScheme.secondary;
+													}
+												} else{
+													if (covered){
+														if (bomb){
+															return colorScheme.primaryVariant;
+														} else{
+															return colorScheme.secondaryVariant;
+														}
+													} else{
+														if (bomb){
+															return colorScheme.primary;
+														} else{
+															return colorScheme.secondary;
+														}
+													}
 												}
 											}
 
@@ -103,14 +158,14 @@ class MyApp extends StatelessWidget {
 																child:Ink(
 																	decoration: BoxDecoration(
 																		borderRadius: BorderRadius.circular(borderRadius),
-																		color:(mineSweeper.getField(x,y)['covered']) ? (Theme.of(context).colorScheme.secondaryVariant) : (Theme.of(context).colorScheme.secondary),
+																		color:fieldColor(x, y)
 																	),
 																	width: boxSize,
 																	height: boxSize,
 																	
 																	child: InkWell(
 																		onDoubleTap: (){
-																			mineSweeper.unCover(x, y);
+																			mineSweeper.unCover(x, y, context);
 																		},
 																		onLongPress: (){
 																			mineSweeper.toggleFlag(x, y);
