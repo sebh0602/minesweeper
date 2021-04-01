@@ -9,9 +9,13 @@ class MineSweeper extends ChangeNotifier{
 	int _cols = 9;
 	int _rows = 20;
 	double _explosiveChance = 0.2;
+	int _bombCount = 0;
+	int _flagCount = 0;
 
 	int get cols => _cols;
 	int get rows => _rows;
+	int get bombCount => _bombCount;
+	int get flagCount => _flagCount;
 	String get gameMode => _gameMode;
 
 	List<List<Map<String,bool>>> _board;
@@ -20,11 +24,14 @@ class MineSweeper extends ChangeNotifier{
 
 	void startGame(){
 		_gameMode = 'init';
+
 		_createBoard();
 		notifyListeners();
 	}
 
 	void _createBoard(){
+		_bombCount = 0;
+		_flagCount = 0;
 		_board = [for (var x = 0; x < _cols; x++) 
 			[for (var y = 0; y < _rows; y++) 
 				Map<String,bool>()
@@ -35,7 +42,9 @@ class MineSweeper extends ChangeNotifier{
 			for (var y = 0; y < _rows; y++){
 				_board[x][y]['covered'] = true;
 				_board[x][y]['flagged'] = false;
-				_board[x][y]['bomb'] = _random.nextDouble() < _explosiveChance;
+				bool bomb = _random.nextDouble() < _explosiveChance;
+				_board[x][y]['bomb'] = bomb;
+				if (bomb) _bombCount++;
 			}
 		}
 
@@ -131,6 +140,10 @@ class MineSweeper extends ChangeNotifier{
 	void toggleFlag(int x, int y){
 		if (_board[x][y]['covered']){
 			_board[x][y]['flagged'] = !_board[x][y]['flagged'];
+
+			if (_board[x][y]['flagged']) _flagCount++;
+			else _flagCount--;
+
 			notifyListeners();
 			Vibration.vibrate(duration: 50);
 		}

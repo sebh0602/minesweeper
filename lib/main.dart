@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:minesweeper/gameLogic.dart';
+import 'package:minesweeper/menus.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -20,11 +21,12 @@ class MyApp extends StatelessWidget {
 						
 						secondary: Colors.blue[50],
 						onSecondary: Colors.black,
-						
 						secondaryVariant: Colors.blue[700]
 					)
 				),
 				home: Scaffold(
+					floatingActionButton: FAB(),
+					//floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
 					body:Center(
 						child:LayoutBuilder(
 							builder:(context,constraints){
@@ -192,3 +194,5 @@ class MyApp extends StatelessWidget {
 		);
 	}
 }
+
+
