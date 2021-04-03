@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:minesweeper/gameLogic.dart';
 import 'package:provider/provider.dart';
 
@@ -44,15 +45,13 @@ class FAB extends StatelessWidget{
 								leading: Icon(Icons.settings),
 								title:Text('Settings'),
 								onTap: (){
-									showDialog(
-										context: context, 
-										builder: (context){
-											return WonDialog(mineSweeper);
-										}
-									);
-									print('wut');
-									print(Theme.of(context).colorScheme);
 									Navigator.of(context, rootNavigator: true).pop();
+									showDialog(
+										context: context,
+										builder: (context){
+											return CustomDialog();
+										}
+									);									
 								},
 							)
 						),
@@ -81,19 +80,102 @@ class CustomDialog extends StatefulWidget{
 class _CustomDialogState extends State<CustomDialog>{
 	@override
 	Widget build(BuildContext context){
+		var mineSweeper = Provider.of<MineSweeper>(context, listen:false);
+
+		var wController = TextEditingController();
+		wController.text = mineSweeper.cols.toString();
+
+		var hController = TextEditingController();
+		hController.text = mineSweeper.rows.toString();
+
+		var pController = TextEditingController();
+		pController.text = mineSweeper.explosiveChance.toString();
+
+		void okHandler(){
+			int w;
+			try{
+				w = int.parse(wController.text);
+			}on FormatException{
+				w = mineSweeper.defaultSize;
+			}
+			
+			if (w > 100) w = 100;
+			else if (w < 4) w = 4;
+			mineSweeper.cols = w;
+
+			int h;
+			try{
+				h = int.parse(hController.text);
+			}on FormatException{
+				h = mineSweeper.defaultSize;
+			}
+			if (h > 100) h = 100;
+			else if (h < 4) h = 4;
+			mineSweeper.rows = h;
+
+			double p;
+			try{
+				p = double.parse(pController.text);
+			}on FormatException{
+				p = mineSweeper.defaultChance;
+			}
+			if (p > 0.5) p = 0.5;
+			mineSweeper.explosiveChance = p;
+		}
+
 		return AlertDialog(
 			title:Text('Settings'),
 			content: Column(
-				children:[Text('hi'),]
+				mainAxisSize: MainAxisSize.min,
+				children:[
+					TextField(
+						decoration: InputDecoration(
+							labelText: 'Width',
+							hintText: mineSweeper.defaultSize.toString(),
+						),
+						keyboardType: TextInputType.number,
+						inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+						controller: wController,
+					),
+					TextField(
+						decoration: InputDecoration(
+							labelText: 'Height',
+							hintText: mineSweeper.defaultSize.toString(),
+						),
+						keyboardType: TextInputType.number,
+						inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+						controller: hController,
+					),
+					TextField(
+						decoration: InputDecoration(
+							labelText: 'Bomb Probability',
+							hintText: mineSweeper.defaultChance.toString(),
+						),
+						keyboardType: TextInputType.numberWithOptions(decimal:true),
+						inputFormatters: [
+							FilteringTextInputFormatter.allow(RegExp('[0-9.]')),
+						],
+						controller: pController,
+					),
+				]
 			),
 			actions: [
 				TextButton(
-					onPressed: (){},
-					child: Text('CANCEL')
+					onPressed: (){
+						Navigator.of(context, rootNavigator: true).pop();
+					},
+					child: Text('CANCEL',
+						style:TextStyle(color:Theme.of(context).colorScheme.secondary)
+					)
 				),
 				TextButton(
-					onPressed: (){},
-					child: Text('OK')
+					onPressed: (){
+						okHandler();
+						Navigator.of(context, rootNavigator: true).pop();
+					},
+					child: Text('OK',
+						style:TextStyle(color:Theme.of(context).colorScheme.secondary)
+					)
 				)
 			],
 		);

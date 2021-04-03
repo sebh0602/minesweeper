@@ -6,14 +6,31 @@ import 'package:minesweeper/menus.dart';
 class MineSweeper extends ChangeNotifier{
 	final _random = Random();
 	
-	int _cols = 9;
-	int _rows = 20;
+	int defaultSize = 10;
+	double defaultChance = 0.2;
+
+	int _cols = 10;
+	int _rows = 10;
 	double _explosiveChance = 0.2;
 	int _bombCount = 0;
 	int _flagCount = 0;
 
 	int get cols => _cols;
 	int get rows => _rows;
+	double get explosiveChance => _explosiveChance;
+	set cols(int val){
+		_cols = val;
+		startGame();
+	}
+	set rows(int val){
+		_rows = val;
+		startGame();
+	}
+	set explosiveChance(double val){
+		_explosiveChance = val;
+		startGame();
+	}
+
 	int get bombCount => _bombCount;
 	int get flagCount => _flagCount;
 	String get gameMode => _gameMode;

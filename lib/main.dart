@@ -21,8 +21,9 @@ class MyApp extends StatelessWidget {
 						
 						secondary: Colors.blue[50],
 						onSecondary: Colors.black,
-						secondaryVariant: Colors.blue[700]
-					)
+						secondaryVariant: Colors.blue[700],
+					),
+					accentColor: Colors.blue[300]
 				),
 				home: Scaffold(
 					floatingActionButton: FAB(),
