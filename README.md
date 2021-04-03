@@ -1,3 +1,3 @@
 # minesweeper
 
-A simple minesweeper app built using flutter.
+A simple cross-platform minesweeper app.

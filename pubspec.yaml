@@ -1,5 +1,5 @@
 name: minesweeper
-description: A simple minesweeper app built using flutter.
+description: A simple cross-platform minesweeper app.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -30,6 +30,12 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_launcher_icons: ^0.9.0
+  #flutter pub run flutter_launcher_icons:main
+
+flutter_icons:
+  android: true
+  image_path: 'icon.png'
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
